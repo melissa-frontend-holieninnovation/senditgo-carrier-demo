@@ -1,10 +1,12 @@
-name: Publish Fleet demo
+name: Sync and publish carrier demo
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -13,22 +15,50 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Test synchronization
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Fetch and sync upstream site
+        id: sync
+        run: |
+          git fetch --no-tags https://github.com/melissacc213/senditgo-fleet-demo.git main:refs/remotes/source/main
+          python3 .github/scripts/sync-upstream.py
+          git add index.html 404.html .nojekyll assets brand demo geo .upstream-revision
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
       - name: Prepare public browser configuration
+        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         env:
           MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
         run: node prepare-deployment.mjs
       - uses: actions/configure-pages@v5
+        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
       - uses: actions/upload-pages-artifact@v3
+        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         with:
           path: _site
       - name: Deploy
+        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Record successfully deployed source
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "Sync carrier demo from upstream $(cat .upstream-revision)"
+          git push origin HEAD:main
