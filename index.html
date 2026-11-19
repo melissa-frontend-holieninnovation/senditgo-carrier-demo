@@ -13,7 +13,7 @@
         var path = new URLSearchParams(window.location.search).get('__pages_path');
         var base = '/senditgo-fleet-demo/';
         if (path && path.startsWith(base) && !path.startsWith('//')) {
-          window.history.replaceState(null, '', path);
+          window.history.replaceState(window.history.state, '', path);
         }
       })();
       // Sets the theme before first paint so the page never flashes. Same rule as resolveTheme in src/theme/useThemeStore.ts:
