@@ -1,19 +1,22 @@
-import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-const token = process.env.MAPBOX_PUBLIC_TOKEN;
-if (!token?.startsWith('pk.')) throw new Error('A public Mapbox browser token is required; secret tokens are refused.');
-await mkdir('_site', { recursive: true });
-for (const entry of ['index.html', '404.html', '.nojekyll', 'assets', 'brand', 'demo', 'geo']) {
-  await cp(entry, `_site/${entry}`, { recursive: true });
+import { createHash } from 'node:crypto';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+
+const files = JSON.parse(await readFile('pages-files.json', 'utf8'));
+for (const entry of ['index.html', '404.html', '.nojekyll']) {
+  if (!Object.hasOwn(files, entry)) throw new Error('Missing release entry: ' + entry);
 }
-let count = 0;
-for (const name of await readdir('_site/assets')) {
-  if (!name.endsWith('.js')) continue;
-  const path = `_site/assets/${name}`;
-  const content = await readFile(path, 'utf8');
-  if (content.includes('__MAPBOX_PUBLIC_TOKEN__')) {
-    await writeFile(path, content.replaceAll('__MAPBOX_PUBLIC_TOKEN__', token));
-    count++;
+const artifact = await mkdtemp(join(process.env.RUNNER_TEMP || tmpdir(), 'fleet-pages-'));
+for (const [name, digest] of Object.entries(files)) {
+  const parts = name.split('/');
+  if (name !== '.nojekyll' && parts.some(part => !/^[\w@-][\w.@-]*$/.test(part))) {
+    throw new Error('Unexpected asset path in the release inventory');
   }
+  const bytes = await readFile(name);
+  if (createHash('sha256').update(bytes).digest('hex') !== digest) throw new Error('Asset digest mismatch: ' + name);
+  await mkdir(join(artifact, dirname(name)), { recursive: true });
+  await writeFile(join(artifact, name), bytes);
 }
-if (!count) throw new Error('Missing deployment token placeholder.');
-console.log('Prepared static deployment.');
+await writeFile(join(artifact, 'pages-files.json'), JSON.stringify(files, null, 2) + '\n');
+console.log(artifact);

@@ -1,0 +1,9 @@
+Sydney streets and geographical labels © State of New South Wales (Spatial Services).
+Source: NSW Basemap, NSW Spatial Services, maps.six.nsw.gov.au.
+https://data.nsw.gov.au/data/dataset/nsw-basemap
+Creative Commons Attribution 3.0 Australia. https://creativecommons.org/licenses/by/3.0/au/
+The Sydney extent was cropped, tiled and compressed into WebP on 20 November 2026.
+Operational names, addresses, route overlays and delivery figures are separate fictional examples.
+
+Map label glyphs: Noto Sans, SIL Open Font License 1.1 (glyphs/OFL.txt).
+Latin, Latin Extended and punctuation ranges distributed by https://github.com/maplibre/demotiles

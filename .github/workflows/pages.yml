@@ -21,14 +21,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Prepare public browser configuration
-        env:
-          MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
-        run: node prepare-deployment.mjs
+      - name: Stage the verified public artifact
+        id: stage
+        run: echo "directory=$(node prepare-deployment.mjs)" >> "$GITHUB_OUTPUT"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ${{ steps.stage.outputs.directory }}
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
