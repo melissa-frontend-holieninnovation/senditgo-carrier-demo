@@ -53,7 +53,6 @@ jobs:
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         with:
           path: ${{ steps.prepare.outputs.directory }}
-          include-hidden-files: true
       - name: Deploy
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         id: deployment
