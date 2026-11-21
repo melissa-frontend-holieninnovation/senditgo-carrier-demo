@@ -220,7 +220,7 @@
   "walkthrough/fleet-en.vtt": "0e2f7086fc22006f1a92e86b219848e2cd374741cac565a214a9edeb13bd3591",
   "walkthrough/fleet-poster.jpg": "00f1c655996a9ae6d338d68667522071685621bf74d118f937594012ba4572c7",
   "walkthrough.html": "d8f84c9a93ea2c253d0b84adc419b08ead9116fa7d37b9b03f7e362128ae948f",
-  "sam-review/index.html": "99b030260ba39db11165f22ddd1dfc53afad506f72c3b290fa4c55dcf10652a9",
+  "sam-review/index.html": "99f1099de42b9d705dd8c8a079f86c60fa7e3074f95874e80aeb080d4baff995",
   "sam-review/sam/approved.js": "cc39cccafaa1101e96a70cea1ce469b4ea932ed13d540f43a4b1dc581a5939c5",
   "sam-review/sam/brand.svg": "c3aa2b75ff1933d9c4e7e970d74468d5871d6cad08355ef55fac83cc5612abe5",
   "sam-review/sam/display.woff": "14abdd1cf9eb74e2176071b9475d9cc68c9e2d03f89f883f5cdf5e89903d983e",
@@ -230,10 +230,13 @@
   "sam-review/sam/load-planner-film.mp4": "3d1fcb4318d31c1d516b6459dec1619bf181777c52379b7ce2913328010250f1",
   "sam-review/sam/loader.webp": "7668c9142f30ec914c7df916535d139c07c3c507a2c0072a327d5fc2018bc7eb",
   "sam-review/sam/mark.svg": "79590782ad54e3bcfdedcc9c4bc5cde2e8a6c42e3722834f02f0e6a18949271b",
-  "sam-review/sam/mate.webp": "ef27a849367e02edfbad43310720274085fb6365148e3a49f72d4f8184fb1fe0",
+  "sam-review/sam/mate.webp": "7330d893be6e637ae6b6843ba4d1d1595aedc63e99c12eeab118cbd56efe9449",
   "sam-review/sam/relay-driver-film.mp4": "66fbd6f5030229564f6001e1fef216ed34530de7d37f1a6c1c384288407f09da",
   "sam-review/sam/relay.webp": "7fcc64845e4f0ae2c0abf523e8e2dbc9cf96be00b940a4c652aaf16eef9c4bd2",
-  "sam-review/sam/run-mate-film.mp4": "3c50ba92511390fec7ba3e64ed255b1b07d543c3864ae185ff782868700a1966",
+  "sam-review/sam/run-mate-film.mp4": "becca51740c6befe3d01ac82af8245cae0f6c1501c7dde151b849b76067f9954",
   "sam-review/sam/scene.css": "a4c89c1b8d07e0469eaebaf17cf0cc69a7fae70b3369ef57598bbdcbae0f34cd",
-  "sam-review/sam/scene.js": "670515fc82208268706c6bd7fb9fd52c945f0e95d30c09b8eafc6a6a472eb8cb"
+  "sam-review/sam/scene.js": "822651f47b47589d118df2cec27a0cfeb1a4ccc2e1d7f1e59b28932453f8d10b",
+  "sam-review/sam/mate-screen-1.webp": "febe03a3789a073829dbaf190b39525426556b0629b8bd5ce32030fede45f6ee",
+  "sam-review/sam/mate-screen-2.webp": "c80028a22e7c382a6d3334c356ebbbdd132c92d3b64681350114d3a0018fa8ce",
+  "sam-review/sam/mate-screen-3.webp": "a8b7bbbe6ad7e67cb51e8ed919f7f517363eefa4e795d753844b2d868af99325"
 }
