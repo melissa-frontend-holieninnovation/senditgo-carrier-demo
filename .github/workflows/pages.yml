@@ -23,7 +23,11 @@ jobs:
           node-version: 22
       - name: Stage the verified public artifact
         id: stage
-        run: echo "directory=$(node prepare-deployment.mjs)" >> "$GITHUB_OUTPUT"
+        env:
+          MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
+        run: |
+          directory=$(node prepare-deployment.mjs --require-mapbox)
+          echo "directory=$directory" >> "$GITHUB_OUTPUT"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
