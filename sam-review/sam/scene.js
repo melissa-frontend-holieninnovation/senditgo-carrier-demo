@@ -1,8 +1,8 @@
 import { copy } from './approved.js';
 
 const cast = [
-  { id:'mate', film:'run-mate-film.mp4?v=faae9ffb84e0', name:'The Run Mate', bio:'Inspired by Samwise Gamgee, the mate who stays when the job gets hard. The paper handover tells his story. The dispatcher’s digital workflow is shown alongside.',
-    shots:['A docket slips from the dispatcher’s stack. SAM reaches out to catch it.', 'He takes the bundle and finds a place for the late drop on the run sheet.', 'The dispatcher checks and signs. SAM stays beside her.'] },
+  { id:'mate', film:'run-mate-film.mp4?v=3c50ba925113', name:'The Run Mate', bio:'Inspired by Samwise Gamgee, the mate who stays when the job gets hard. At the depot laptop, he helps the dispatcher fit a late drop into the run. She makes the final call.',
+    shots:['SAM checks the late drop on the laptop with the dispatcher beside him.', 'He points to the stop where the late drop could fit.', 'She checks the route and clicks to confirm it. SAM steps back.'] },
   { id:'loader', film:'load-planner-film.mp4?v=3d1fcb4318d3', name:'The Load Planner', bio:'He checks the cartons against the space in the delivery SUV before the run leaves the depot.',
     shots:['SAM opens the load plan on his laptop beside the two cartons.', 'He checks the width of the larger carton at the bench.', 'He points out the load plan on the laptop so his teammate can review it.'] },
   { id:'relay', film:'relay-driver-film.mp4?v=66fbd6f50302', name:'The Relay Driver', bio:'He handles the late shift on a regional run. At changeover, he makes sure the incoming driver has the latest plan.',
@@ -37,7 +37,7 @@ function paint() {
   $('name').textContent = actor.name;
   $('bio').textContent = actor.bio;
   $('caption').textContent = actor.shots[step];
-  $('frame').style.backgroundImage = 'url(./sam/' + actor.id + '.webp?v=8)';
+  $('frame').style.backgroundImage = 'url(./sam/' + actor.id + '.webp?v=' + (actor.id === 'mate' ? 'ef27a849367e' : '8') + ')';
   $('frame').style.backgroundPositionX = (step * 50) + '%';
   $('frame').setAttribute('aria-label', actor.shots[step]);
   $('product-caption').textContent = stage.detail;
