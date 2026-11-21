@@ -33,24 +33,27 @@ jobs:
         id: sync
         run: |
           git fetch --no-tags https://github.com/melissacc213/senditgo-fleet-demo.git main:refs/remotes/source/main
-          python3 .github/scripts/sync-upstream.py
-          git add index.html 404.html .nojekyll assets brand demo geo .upstream-revision
+          python3 .github/scripts/sync-upstream.py --stage
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
             echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
       - name: Prepare public browser configuration
+        id: prepare
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         env:
           MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
-        run: node prepare-deployment.mjs
+        run: |
+          directory=$(node prepare-deployment.mjs --require-mapbox)
+          echo "directory=$directory" >> "$GITHUB_OUTPUT"
       - uses: actions/configure-pages@v5
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
       - uses: actions/upload-pages-artifact@v3
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         with:
-          path: _site
+          path: ${{ steps.prepare.outputs.directory }}
+          include-hidden-files: true
       - name: Deploy
         if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         id: deployment

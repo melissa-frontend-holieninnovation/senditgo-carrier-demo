@@ -7,13 +7,15 @@ The **Sync and publish carrier demo** workflow checks
 7, 22, 37 and 52). GitHub may delay scheduled runs. It can also be started
 manually from Actions, and runs on pushes to this repository's `main`.
 
-The static site directories are replaced with the upstream snapshot, including
-asset deletions. HTML, scripts, styles and other text assets use the
+The public release comes from the upstream `pages-files.json` inventory. Each
+source checksum is verified before copying the application, SAM review, films,
+captions and deep links. Assets dropped from the inventory are removed. HTML, scripts, styles and other text assets use the
 `/senditgo-carrier-demo/` base path. Local workflows, sync tests and the deployment
-script are preserved. Do not edit the mirrored site files here; edit upstream.
+script are preserved. The carrier inventory records the rewritten checksums. Do not edit the mirrored site files here; edit upstream.
 
 The existing `MAPBOX_PUBLIC_TOKEN` Actions secret supplies the public browser map
-configuration. No personal GitHub token is needed. The workflow deploys directly,
+configuration in the temporary Pages artifact. Git retains an empty public
+configuration template. No personal GitHub token is needed. The workflow deploys directly,
 then commits the synchronized files and `.upstream-revision` using `GITHUB_TOKEN`.
 Recording the revision only after successful deployment lets the next scheduled
 run retry a failed deployment. Unchanged scheduled runs skip deployment.
