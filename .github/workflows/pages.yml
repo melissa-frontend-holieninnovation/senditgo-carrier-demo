@@ -6,19 +6,24 @@ on:
   schedule:
     - cron: "7,22,37,52 * * * *"
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      changed: ${{ steps.sync.outputs.changed }}
+      publish: ${{ steps.prepare.outcome == 'success' }}
+      base: ${{ steps.sync.outputs.base }}
+      upstream: ${{ steps.sync.outputs.upstream }}
+      tree: ${{ steps.sync.outputs.tree }}
+      manifest: ${{ steps.prepare.outputs.manifest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,8 +37,13 @@ jobs:
       - name: Fetch and sync upstream site
         id: sync
         run: |
-          git fetch --no-tags https://github.com/melissacc213/senditgo-fleet-demo.git main:refs/remotes/source/main
+          git fetch --depth=1 --no-tags https://github.com/melissacc213/senditgo-fleet-demo.git main:refs/remotes/source/main
           python3 .github/scripts/sync-upstream.py --stage
+          {
+            echo "base=$(git rev-parse HEAD)"
+            echo "upstream=$(cat .upstream-revision)"
+            echo "tree=$(git write-tree)"
+          } >> "$GITHUB_OUTPUT"
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
@@ -46,21 +56,65 @@ jobs:
           MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
         run: |
           directory=$(node prepare-deployment.mjs --require-mapbox)
+          cp .upstream-revision "$directory/.upstream-revision"
+          echo "manifest=$(sha256sum "$directory/pages-files.json" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
           echo "directory=$directory" >> "$GITHUB_OUTPUT"
       - uses: actions/configure-pages@v5
-        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
-      - uses: actions/upload-pages-artifact@v3
-        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
+        if: steps.prepare.outcome == 'success'
+      - uses: actions/upload-pages-artifact@v5
+        if: steps.prepare.outcome == 'success'
         with:
           path: ${{ steps.prepare.outputs.directory }}
+          include-hidden-files: true
+  deploy:
+    needs: build
+    if: needs.build.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy
-        if: steps.sync.outputs.changed == 'true' || github.event_name != 'schedule'
         id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Record successfully deployed source
-        if: steps.sync.outputs.changed == 'true'
+        uses: actions/deploy-pages@v5
+      - name: Verify published revision and file inventory
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          UPSTREAM: ${{ needs.build.outputs.upstream }}
+          MANIFEST: ${{ needs.build.outputs.manifest }}
         run: |
+          for attempt in {1..18}; do
+            query="run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$attempt"
+            if curl -fsSL --max-time 12 "${PAGE_URL%/}/.upstream-revision?$query" -o revision &&
+               test "$(cat revision)" = "$UPSTREAM" &&
+               curl -fsSL --max-time 12 "${PAGE_URL%/}/pages-files.json?$query" -o manifest &&
+               echo "$MANIFEST  manifest" | sha256sum --check --status; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::The live revision or its file inventory did not match the deployed artifact."
+          exit 1
+      - uses: actions/checkout@v4
+        if: needs.build.outputs.changed == 'true'
+        with:
+          ref: ${{ needs.build.outputs.base }}
+      - name: Record successfully deployed source
+        if: needs.build.outputs.changed == 'true'
+        env:
+          UPSTREAM: ${{ needs.build.outputs.upstream }}
+          EXPECTED_TREE: ${{ needs.build.outputs.tree }}
+        run: |
+          git fetch --depth=1 --no-tags https://github.com/melissacc213/senditgo-fleet-demo.git "${UPSTREAM}:refs/remotes/source/main"
+          python3 .github/scripts/sync-upstream.py --stage
+          test "$(cat .upstream-revision)" = "$UPSTREAM"
+          test "$(git write-tree)" = "$EXPECTED_TREE"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m "Sync carrier demo from upstream $(cat .upstream-revision)"
+          git commit -m "Sync carrier demo from upstream $UPSTREAM"
           git push origin HEAD:main

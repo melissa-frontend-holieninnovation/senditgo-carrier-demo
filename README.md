@@ -17,8 +17,9 @@ The existing `MAPBOX_PUBLIC_TOKEN` Actions secret supplies the public browser ma
 configuration in the temporary Pages artifact. Git retains an empty public
 configuration template. No personal GitHub token is needed. The workflow deploys directly,
 then commits the synchronized files and `.upstream-revision` using `GITHUB_TOKEN`.
-Recording the revision only after successful deployment lets the next scheduled
-run retry a failed deployment. Unchanged scheduled runs skip deployment.
+The deploy job checks the live `.upstream-revision` and the SHA-256 of
+`pages-files.json` against the artifact before recording the exact source that
+was built. A failed check leaves the revision pending for the next scheduled retry. Unchanged scheduled runs skip deployment.
 
 GitHub disables schedules in public repositories after 60 days without repository
 activity. If that happens, re-enable this workflow in Actions. See
