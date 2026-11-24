@@ -24,3 +24,14 @@ was built. A failed check leaves the revision pending for the next scheduled ret
 GitHub disables schedules in public repositories after 60 days without repository
 activity. If that happens, re-enable this workflow in Actions. See
 [GitHub's schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
+## Guided tours
+
+Open a tour in a browser window at least 1024 pixels wide.
+
+- [Order Management](https://melissa-frontend-holieninnovation.github.io/senditgo-carrier-demo/run-management/order-management/?tour=order-management)
+- [A dispatcher’s day](https://melissa-frontend-holieninnovation.github.io/senditgo-carrier-demo/?tour=dispatcher-day)
+- [Roster](https://melissa-frontend-holieninnovation.github.io/senditgo-carrier-demo/roster/?tour=roster)
+- [Route Planning](https://melissa-frontend-holieninnovation.github.io/senditgo-carrier-demo/run-management/route-planning/?tour=route-planning)
+
+The workflow adds the guided tours from `.github/guided-tour/src` after preparing the upstream demo. The published inventory includes the final HTML and tour runtime hashes. Chrome follows each tour to its end screen before upload and again on the live site. Scheduled checks with no upstream changes compare the live tour assets with the version in this repository.
