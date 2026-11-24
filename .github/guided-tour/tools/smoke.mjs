@@ -136,6 +136,9 @@ async function checkReviewBranches() {
     await page.getByTestId('om-runsheet-overview').waitFor();
     const openRail = page.getByTestId('rail-left-open');
     if (await openRail.isVisible()) await openRail.click();
+    const sheets = page.getByTestId('runsheet-section-toggle');
+    if ((await sheets.getAttribute('aria-expanded')) === 'false') await sheets.click();
+    await page.getByTestId('runsheet-filter').locator('[data-value="idle"]').click();
     await page.getByTestId('runsheet-list').getByRole('button', { name: /free driver$/i }).first().click();
     await page.getByTestId('om-detail-idle').waitFor();
     await notice.waitFor();
